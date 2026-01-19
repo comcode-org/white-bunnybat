@@ -1,6 +1,7 @@
-#!/usr/bin/env fontforge -script
+#!/usr/bin/env fontforge
 import sys
 import fontforge
+
 
 def main():
     if len(sys.argv) != 3:
@@ -14,6 +15,7 @@ def main():
     font.save(out_path)
     font.close()
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
