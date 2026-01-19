@@ -6,15 +6,14 @@
 #
 # Produces a stable, review-friendly diff:
 # - font-wide metric differences
-# - glyph presence differences
-# - glyph diffs keyed by Unicode when available (else glyphname)
-# - compares widths, bbox, components, and a normalized outline hash
+# - glyph presence differences (by stable key: Unicode if present, else name)
+# - glyph diffs: widths, bbox (raw + normalized), references, outline stats,
+#   and (when comparable) point-level delta previews
 #
 # Notes:
-# - Outline hashing normalizes coordinates by UPM (em) so fonts with different UPM
-#   can still be compared meaningfully.
-# - This is a "structural" outline comparison; visually identical outlines can
-#   still hash differently if point order/segmentation differs.
+# - Outline hashing and bbox_norm normalize coordinates by UPM (em), so fonts
+#   with different UPM can still be compared meaningfully.
+# - Point-level comparison is only meaningful if contour/point structure matches.
 
 import sys
 import json
@@ -88,7 +87,7 @@ def glyph_label(g):
 def normalize_transform(transform, em):
     """
     Transform is typically (xx, xy, yx, yy, dx, dy).
-    We normalize translation (dx, dy) by em so UPM scaling won't change hashes.
+    Normalize translation (dx, dy) by em so UPM scaling won't change hashes.
     """
     t = list(transform)
     if em and len(t) == 6:
@@ -137,14 +136,135 @@ def layer_outline_signature(g, em):
     return hashlib.sha256(b).hexdigest()
 
 
+def outline_stats(g):
+    """Return contour/point stats for foreground layer."""
+    if g is None:
+        return None
+    try:
+        layer = g.foreground
+    except Exception:
+        return None
+
+    contours = 0
+    points = 0
+    oncurve = 0
+    offcurve = 0
+    per_contour_points = []
+
+    try:
+        for c in layer:
+            contours += 1
+            c_points = 0
+            for pt in c:
+                points += 1
+                c_points += 1
+                if getattr(pt, "on_curve", False):
+                    oncurve += 1
+                else:
+                    offcurve += 1
+            per_contour_points.append(c_points)
+    except Exception:
+        pass
+
+    return {
+        "contours": contours,
+        "points": points,
+        "oncurve": oncurve,
+        "offcurve": offcurve,
+        "per_contour_points": per_contour_points,
+    }
+
+
+def point_delta_preview(gA, gB, emA, emB, limit=10):
+    """
+    If outline structure matches (same number of contours and points per contour),
+    compute coordinate deltas and report first mismatches.
+    Deltas are reported in raw font units; normalization can be inferred via em.
+    """
+    if gA is None or gB is None:
+        return None
+
+    try:
+        la = gA.foreground
+        lb = gB.foreground
+    except Exception:
+        return None
+
+    ca = []
+    cb = []
+    try:
+        for c in la:
+            ca.append([(pt.x, pt.y, bool(pt.on_curve)) for pt in c])
+        for c in lb:
+            cb.append([(pt.x, pt.y, bool(pt.on_curve)) for pt in c])
+    except Exception:
+        return None
+
+    if len(ca) != len(cb):
+        return {"comparable": False, "reason": "different contour count"}
+
+    for i in range(len(ca)):
+        if len(ca[i]) != len(cb[i]):
+            return {
+                "comparable": False,
+                "reason": f"point count differs in contour {i}",
+            }
+
+    max_dx = 0.0
+    max_dy = 0.0
+    mismatches = []
+
+    for ci in range(len(ca)):
+        for pi in range(len(ca[ci])):
+            xa, ya, ona = ca[ci][pi]
+            xb, yb, onb = cb[ci][pi]
+
+            dx = xb - xa
+            dy = yb - ya
+            if abs(dx) > max_dx:
+                max_dx = abs(dx)
+            if abs(dy) > max_dy:
+                max_dy = abs(dy)
+
+            if dx != 0 or dy != 0 or ona != onb:
+                if len(mismatches) < limit:
+                    mismatches.append(
+                        {
+                            "contour": ci,
+                            "point": pi,
+                            "A": {"x": xa, "y": ya, "on": ona},
+                            "B": {"x": xb, "y": yb, "on": onb},
+                            "d": {
+                                "dx": dx,
+                                "dy": dy,
+                                "dx_norm": (dx / emB) if emB else None,
+                                "dy_norm": (dy / emB) if emB else None,
+                            },
+                        }
+                    )
+
+    return {
+        "comparable": True,
+        "max_dx": max_dx,
+        "max_dy": max_dy,
+        "mismatches": mismatches,
+    }
+
+
+def refs_set_from_snapshot(snap):
+    """Normalize references into a set for readable diffs."""
+    out = set()
+    for refname, t in snap.get("references", []):
+        out.add((refname, tuple(t)))
+    return out
+
+
 def glyph_snapshot(g, em):
     """Collect properties worth diffing, including a normalized outline hash."""
     snap = {
         "name": g.glyphname,
         "unicode": getattr(g, "unicode", -1),
-        "encoding_slot": getattr(
-            g, "encoding", None
-        ),  # useful for debugging, not for matching
+        "encoding_slot": getattr(g, "encoding", None),  # debug only
         "width": getattr(g, "width", None),
         "vwidth": getattr(g, "vwidth", None),
         "bbox": None,
@@ -184,7 +304,7 @@ def glyph_snapshot(g, em):
 
 def build_index(font):
     """
-    Map stable glyph keys -> {"label":..., "snap":...}
+    Map stable glyph keys -> entry with label + snapshot.
     If key collisions occur (rare), disambiguate by appending glyphname.
     """
     em = getattr(font, "em", None) or 1000
@@ -208,6 +328,12 @@ def main():
     path_a, path_b = sys.argv[1], sys.argv[2]
     fa = fontforge.open(path_a)
     fb = fontforge.open(path_b)
+
+    em_a = getattr(fa, "em", None) or 1000
+    em_b = getattr(fb, "em", None) or 1000
+
+    glyphsA_by_name = {g.glyphname: g for g in fa.glyphs()}
+    glyphsB_by_name = {g.glyphname: g for g in fb.glyphs()}
 
     # Font-wide metrics
     ma = font_metrics(fa)
@@ -252,21 +378,22 @@ def main():
         sb = gb["snap"]
 
         diff = dict_diff(sa, sb)
+
+        # We'll print even if only outline_hash differs, but include more context.
         if not diff:
             continue
 
         changed += 1
         print(f"\n[{k}] {ga['label']}  vs  {gb['label']}")
 
-        # Prefer normalized bbox for review if present
-        # (you can drop raw bbox if you only want normalized)
+        # Core field diffs (ordered)
         preferred_order = [
             "width",
             "bbox_norm",
             "bbox",
-            "references",
             "outline_hash",
             "has_outlines",
+            "references",
             "unicode",
             "name",
             "encoding_slot",
@@ -278,11 +405,55 @@ def main():
                 v = diff[fld]
                 print(f"  - {fld}: {v['A']}  ->  {v['B']}")
 
-        # Print any remaining fields (future-proof)
         for fld in diff:
             if fld not in preferred_order:
                 v = diff[fld]
                 print(f"  - {fld}: {v['A']}  ->  {v['B']}")
+
+        # Extra diagnostics (even if not in diff)
+        gA_obj = glyphsA_by_name.get(sa["name"])
+        gB_obj = glyphsB_by_name.get(sb["name"])
+
+        # Outline stats
+        sta = outline_stats(gA_obj)
+        stb = outline_stats(gB_obj)
+        if sta != stb:
+            print(f"  - outline_stats: {sta}  ->  {stb}")
+
+        # Readable refs added/removed (more useful than raw list diffs)
+        ra = refs_set_from_snapshot(sa)
+        rb = refs_set_from_snapshot(sb)
+        if ra != rb:
+            removed = sorted(list(ra - rb))
+            added = sorted(list(rb - ra))
+            if removed:
+                print(
+                    f"  - references_removed: {removed[:12]}"
+                    + (" ..." if len(removed) > 12 else "")
+                )
+            if added:
+                print(
+                    f"  - references_added: {added[:12]}"
+                    + (" ..." if len(added) > 12 else "")
+                )
+
+        # Point delta preview (only if structure matches)
+        pv = point_delta_preview(gA_obj, gB_obj, em_a, em_b, limit=10)
+        if pv:
+            if pv.get("comparable"):
+                if pv["max_dx"] != 0 or pv["max_dy"] != 0 or pv["mismatches"]:
+                    print(
+                        f"  - point_deltas: max_dx={pv['max_dx']} max_dy={pv['max_dy']}"
+                    )
+                    for mm in pv["mismatches"]:
+                        print(
+                            f"    * c{mm['contour']} p{mm['point']}: "
+                            f"({mm['A']['x']},{mm['A']['y']},{mm['A']['on']}) -> "
+                            f"({mm['B']['x']},{mm['B']['y']},{mm['B']['on']}) "
+                            f"dx={mm['d']['dx']} dy={mm['d']['dy']}"
+                        )
+            else:
+                print(f"  - point_compare: not comparable ({pv.get('reason')})")
 
     if changed == 0:
         print("(none)")
