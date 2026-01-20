@@ -8,46 +8,35 @@
 # - font-wide metric differences
 # - glyph presence differences (by stable key: Unicode if present, else name)
 # - glyph diffs: widths, bbox (raw + normalized), references, outline stats,
-#   and (when comparable) point-level delta previews
+#   outline hash, and affine fit diagnostics
 #
-# Notes:
-# - Outline hashing and bbox_norm normalize coordinates by UPM (em), so fonts
-#   with different UPM can still be compared meaningfully.
-# - Point-level comparison is only meaningful if contour/point structure matches.
+# Change from previous version:
+# - If a glyph is "affine equivalent" (near-perfect scale+translate fit with
+#   small residuals), point-by-point diffs are SUPPRESSED automatically.
 
 import sys
 import json
 import hashlib
+import math
 
 import fontforge
 
 
 def font_metrics(f):
-    """Collect a small set of font-wide metrics that commonly change."""
     out = {}
     out["em"] = getattr(f, "em", None)
     out["ascent"] = getattr(f, "ascent", None)
     out["descent"] = getattr(f, "descent", None)
-
-    # These exist on many FontForge builds, but not all.
-    # Missing ones will appear as None.
     for k in [
-        "os2_typoascent",
-        "os2_typodescent",
-        "os2_typolinegap",
-        "os2_winascent",
-        "os2_windescent",
-        "hhea_ascent",
-        "hhea_descent",
-        "hhea_linegap",
+        "os2_typoascent", "os2_typodescent", "os2_typolinegap",
+        "os2_winascent", "os2_windescent",
+        "hhea_ascent", "hhea_descent", "hhea_linegap",
     ]:
         out[k] = getattr(f, k, None)
-
     return out
 
 
 def dict_diff(a, b):
-    """Return a dict of fields where values differ."""
     changes = {}
     keys = set(a.keys()) | set(b.keys())
     for k in sorted(keys):
@@ -57,11 +46,6 @@ def dict_diff(a, b):
 
 
 def glyph_key(g):
-    """
-    Stable key for matching glyphs across fonts:
-    - Prefer Unicode codepoint when present
-    - Otherwise fall back to glyph name
-    """
     u = getattr(g, "unicode", -1)
     if u is not None and u != -1:
         return f"U+{u:04X}"
@@ -69,15 +53,9 @@ def glyph_key(g):
 
 
 def glyph_label(g):
-    """
-    Human-friendly label.
-    - For encoded glyphs: U+XXXX (name)
-    - For unencoded glyphs: name (unencoded, enc=slot)
-    """
     u = getattr(g, "unicode", -1)
     if u is not None and u != -1:
         return f"U+{u:04X} ({g.glyphname})"
-
     enc = getattr(g, "encoding", None)
     if enc is None:
         return f"{g.glyphname} (unencoded)"
@@ -85,10 +63,6 @@ def glyph_label(g):
 
 
 def normalize_transform(transform, em):
-    """
-    Transform is typically (xx, xy, yx, yy, dx, dy).
-    Normalize translation (dx, dy) by em so UPM scaling won't change hashes.
-    """
     t = list(transform)
     if em and len(t) == 6:
         t[4] = t[4] / em
@@ -97,13 +71,6 @@ def normalize_transform(transform, em):
 
 
 def layer_outline_signature(g, em):
-    """
-    Produce a stable hash of outline geometry:
-    - iterate contours and points
-    - include on-curve flag
-    - normalize coordinates by em to be UPM-invariant
-    - include component refs + normalized transforms
-    """
     try:
         layer = g.foreground
     except Exception:
@@ -111,15 +78,13 @@ def layer_outline_signature(g, em):
 
     contours_out = []
 
-    # Component references
     refs_out = []
     try:
-        for refname, transform in g.references:
+        for (refname, transform) in g.references:
             refs_out.append([refname, normalize_transform(transform, em)])
     except Exception:
         pass
 
-    # Contours and points
     try:
         for contour in layer:
             pts = []
@@ -137,7 +102,6 @@ def layer_outline_signature(g, em):
 
 
 def outline_stats(g):
-    """Return contour/point stats for foreground layer."""
     if g is None:
         return None
     try:
@@ -176,14 +140,8 @@ def outline_stats(g):
 
 
 def point_delta_preview(gA, gB, emA, emB, limit=10):
-    """
-    If outline structure matches (same number of contours and points per contour),
-    compute coordinate deltas and report first mismatches.
-    Deltas are reported in raw font units; normalization can be inferred via em.
-    """
     if gA is None or gB is None:
         return None
-
     try:
         la = gA.foreground
         lb = gB.foreground
@@ -205,10 +163,7 @@ def point_delta_preview(gA, gB, emA, emB, limit=10):
 
     for i in range(len(ca)):
         if len(ca[i]) != len(cb[i]):
-            return {
-                "comparable": False,
-                "reason": f"point count differs in contour {i}",
-            }
+            return {"comparable": False, "reason": f"point count differs in contour {i}"}
 
     max_dx = 0.0
     max_dy = 0.0
@@ -218,30 +173,24 @@ def point_delta_preview(gA, gB, emA, emB, limit=10):
         for pi in range(len(ca[ci])):
             xa, ya, ona = ca[ci][pi]
             xb, yb, onb = cb[ci][pi]
-
             dx = xb - xa
             dy = yb - ya
-            if abs(dx) > max_dx:
-                max_dx = abs(dx)
-            if abs(dy) > max_dy:
-                max_dy = abs(dy)
-
+            max_dx = max(max_dx, abs(dx))
+            max_dy = max(max_dy, abs(dy))
             if dx != 0 or dy != 0 or ona != onb:
                 if len(mismatches) < limit:
-                    mismatches.append(
-                        {
-                            "contour": ci,
-                            "point": pi,
-                            "A": {"x": xa, "y": ya, "on": ona},
-                            "B": {"x": xb, "y": yb, "on": onb},
-                            "d": {
-                                "dx": dx,
-                                "dy": dy,
-                                "dx_norm": (dx / emB) if emB else None,
-                                "dy_norm": (dy / emB) if emB else None,
-                            },
-                        }
-                    )
+                    mismatches.append({
+                        "contour": ci,
+                        "point": pi,
+                        "A": {"x": xa, "y": ya, "on": ona},
+                        "B": {"x": xb, "y": yb, "on": onb},
+                        "d": {
+                            "dx": dx,
+                            "dy": dy,
+                            "dx_norm": (dx / emB) if emB else None,
+                            "dy_norm": (dy / emB) if emB else None,
+                        },
+                    })
 
     return {
         "comparable": True,
@@ -251,8 +200,99 @@ def point_delta_preview(gA, gB, emA, emB, limit=10):
     }
 
 
+def _fit_scale_translate_1d(xs, ys):
+    n = len(xs)
+    if n == 0:
+        return None
+
+    mx = sum(xs) / n
+    my = sum(ys) / n
+
+    sxx = 0.0
+    sxy = 0.0
+    for x, y in zip(xs, ys):
+        dx = x - mx
+        sxx += dx * dx
+        sxy += dx * (y - my)
+
+    if sxx == 0.0:
+        s = 0.0
+        t = my
+    else:
+        s = sxy / sxx
+        t = my - s * mx
+
+    se = 0.0
+    max_abs = 0.0
+    for x, y in zip(xs, ys):
+        yhat = s * x + t
+        e = y - yhat
+        se += e * e
+        if abs(e) > max_abs:
+            max_abs = abs(e)
+
+    rmse = math.sqrt(se / n)
+    return s, t, rmse, max_abs
+
+
+def affine_fit_glyph(gA, gB):
+    if gA is None or gB is None:
+        return None
+    try:
+        la = gA.foreground
+        lb = gB.foreground
+    except Exception:
+        return None
+
+    ca = []
+    cb = []
+    try:
+        for c in la:
+            ca.append([(pt.x, pt.y) for pt in c])
+        for c in lb:
+            cb.append([(pt.x, pt.y) for pt in c])
+    except Exception:
+        return None
+
+    if len(ca) != len(cb):
+        return {"comparable": False, "reason": "different contour count"}
+
+    for i in range(len(ca)):
+        if len(ca[i]) != len(cb[i]):
+            return {"comparable": False, "reason": f"point count differs in contour {i}"}
+
+    xsA, ysA, xsB, ysB = [], [], [], []
+    for ci in range(len(ca)):
+        for pi in range(len(ca[ci])):
+            xa, ya = ca[ci][pi]
+            xb, yb = cb[ci][pi]
+            xsA.append(xa); ysA.append(ya)
+            xsB.append(xb); ysB.append(yb)
+
+    fx = _fit_scale_translate_1d(xsA, xsB)
+    fy = _fit_scale_translate_1d(ysA, ysB)
+    if fx is None or fy is None:
+        return None
+
+    sx, tx, rmse_x, maxerr_x = fx
+    sy, ty, rmse_y, maxerr_y = fy
+
+    rmse_xy = math.sqrt(rmse_x * rmse_x + rmse_y * rmse_y)
+    maxerr_xy = math.sqrt(maxerr_x * maxerr_x + maxerr_y * maxerr_y)
+
+    return {
+        "comparable": True,
+        "sx": sx, "tx": tx,
+        "sy": sy, "ty": ty,
+        "rmse_x": rmse_x, "rmse_y": rmse_y,
+        "rmse_xy": rmse_xy,
+        "maxerr_x": maxerr_x, "maxerr_y": maxerr_y,
+        "maxerr_xy": maxerr_xy,
+        "n_points": len(xsA),
+    }
+
+
 def refs_set_from_snapshot(snap):
-    """Normalize references into a set for readable diffs."""
     out = set()
     for refname, t in snap.get("references", []):
         out.add((refname, tuple(t)))
@@ -260,7 +300,6 @@ def refs_set_from_snapshot(snap):
 
 
 def glyph_snapshot(g, em):
-    """Collect properties worth diffing, including a normalized outline hash."""
     snap = {
         "name": g.glyphname,
         "unicode": getattr(g, "unicode", -1),
@@ -274,9 +313,8 @@ def glyph_snapshot(g, em):
         "outline_hash": None,
     }
 
-    # Bounding box in font units
     try:
-        bb = g.boundingBox()  # (xmin, ymin, xmax, ymax)
+        bb = g.boundingBox()
         snap["bbox"] = tuple(round(x, 3) for x in bb)
         if em:
             snap["bbox_norm"] = tuple(round((x / em), 8) for x in bb)
@@ -285,11 +323,10 @@ def glyph_snapshot(g, em):
         snap["bbox_norm"] = None
 
     try:
-        snap["has_outlines"] = not g.foreground.isEmpty()
+        snap["has_outlines"] = (not g.foreground.isEmpty())
     except Exception:
         snap["has_outlines"] = None
 
-    # References/components (include normalized transforms for robust comparison)
     try:
         snap["references"] = [
             [refname, normalize_transform(transform, em)]
@@ -303,18 +340,13 @@ def glyph_snapshot(g, em):
 
 
 def build_index(font):
-    """
-    Map stable glyph keys -> entry with label + snapshot.
-    If key collisions occur (rare), disambiguate by appending glyphname.
-    """
     em = getattr(font, "em", None) or 1000
     idx = {}
     for g in font.glyphs():
         k = glyph_key(g)
         entry = {"label": glyph_label(g), "snap": glyph_snapshot(g, em)}
         if k in idx:
-            k2 = f"{k}/{g.glyphname}"
-            idx[k2] = entry
+            idx[f"{k}/{g.glyphname}"] = entry
         else:
             idx[k] = entry
     return idx
@@ -335,7 +367,6 @@ def main():
     glyphsA_by_name = {g.glyphname: g for g in fa.glyphs()}
     glyphsB_by_name = {g.glyphname: g for g in fb.glyphs()}
 
-    # Font-wide metrics
     ma = font_metrics(fa)
     mb = font_metrics(fb)
     metric_changes = dict_diff(ma, mb)
@@ -347,7 +378,6 @@ def main():
     else:
         print("(none)")
 
-    # Glyph indices
     ia = build_index(fa)
     ib = build_index(fb)
 
@@ -366,7 +396,10 @@ def main():
     if only_b[:50]:
         print("  " + ", ".join(only_b[:50]) + (" ..." if len(only_b) > 50 else ""))
 
-    # Glyph diffs
+    # Affine equivalence thresholds (in font units of B)
+    AFFINE_RMSE_THRESHOLD = 1.0
+    AFFINE_MAXERR_THRESHOLD = 2.0
+
     print("\n== Glyph property / outline differences (matched by Unicode or name) ==")
 
     changed = 0
@@ -378,15 +411,12 @@ def main():
         sb = gb["snap"]
 
         diff = dict_diff(sa, sb)
-
-        # We'll print even if only outline_hash differs, but include more context.
         if not diff:
             continue
 
         changed += 1
         print(f"\n[{k}] {ga['label']}  vs  {gb['label']}")
 
-        # Core field diffs (ordered)
         preferred_order = [
             "width",
             "bbox_norm",
@@ -410,50 +440,66 @@ def main():
                 v = diff[fld]
                 print(f"  - {fld}: {v['A']}  ->  {v['B']}")
 
-        # Extra diagnostics (even if not in diff)
         gA_obj = glyphsA_by_name.get(sa["name"])
         gB_obj = glyphsB_by_name.get(sb["name"])
 
-        # Outline stats
         sta = outline_stats(gA_obj)
         stb = outline_stats(gB_obj)
         if sta != stb:
             print(f"  - outline_stats: {sta}  ->  {stb}")
 
-        # Readable refs added/removed (more useful than raw list diffs)
         ra = refs_set_from_snapshot(sa)
         rb = refs_set_from_snapshot(sb)
         if ra != rb:
             removed = sorted(list(ra - rb))
             added = sorted(list(rb - ra))
             if removed:
-                print(
-                    f"  - references_removed: {removed[:12]}"
-                    + (" ..." if len(removed) > 12 else "")
-                )
+                print(f"  - references_removed: {removed[:12]}" + (" ..." if len(removed) > 12 else ""))
             if added:
-                print(
-                    f"  - references_added: {added[:12]}"
-                    + (" ..." if len(added) > 12 else "")
-                )
+                print(f"  - references_added: {added[:12]}" + (" ..." if len(added) > 12 else ""))
 
-        # Point delta preview (only if structure matches)
-        pv = point_delta_preview(gA_obj, gB_obj, em_a, em_b, limit=10)
-        if pv:
-            if pv.get("comparable"):
-                if pv["max_dx"] != 0 or pv["max_dy"] != 0 or pv["mismatches"]:
+        # Affine fit (scale+translate per axis)
+        affine_equiv = False
+        aff = affine_fit_glyph(gA_obj, gB_obj)
+        if aff:
+            if aff.get("comparable"):
+                sx = aff["sx"]; tx = aff["tx"]
+                sy = aff["sy"]; ty = aff["ty"]
+                rmse_xy = aff["rmse_xy"]
+                maxerr_xy = aff["maxerr_xy"]
+                print(
+                    "  - affine_fit: "
+                    f"sx={sx:.9g} tx={tx:.6g}, sy={sy:.9g} ty={ty:.6g}; "
+                    f"rmse_xy={rmse_xy:.6g} maxerr_xy={maxerr_xy:.6g} "
+                    f"(n={aff['n_points']})"
+                )
+                if rmse_xy <= AFFINE_RMSE_THRESHOLD and maxerr_xy <= AFFINE_MAXERR_THRESHOLD:
+                    affine_equiv = True
                     print(
-                        f"  - point_deltas: max_dx={pv['max_dx']} max_dy={pv['max_dy']}"
+                        f"  - affine_equivalent: YES "
+                        f"(rmse_xy<={AFFINE_RMSE_THRESHOLD}, maxerr_xy<={AFFINE_MAXERR_THRESHOLD})"
                     )
-                    for mm in pv["mismatches"]:
-                        print(
-                            f"    * c{mm['contour']} p{mm['point']}: "
-                            f"({mm['A']['x']},{mm['A']['y']},{mm['A']['on']}) -> "
-                            f"({mm['B']['x']},{mm['B']['y']},{mm['B']['on']}) "
-                            f"dx={mm['d']['dx']} dy={mm['d']['dy']}"
-                        )
             else:
-                print(f"  - point_compare: not comparable ({pv.get('reason')})")
+                print(f"  - affine_fit: not comparable ({aff.get('reason')})")
+
+        # Point diffs: suppress if affine equivalent
+        if not affine_equiv:
+            pv = point_delta_preview(gA_obj, gB_obj, em_a, em_b, limit=10)
+            if pv:
+                if pv.get("comparable"):
+                    if pv["max_dx"] != 0 or pv["max_dy"] != 0 or pv["mismatches"]:
+                        print(f"  - point_deltas: max_dx={pv['max_dx']} max_dy={pv['max_dy']}")
+                        for mm in pv["mismatches"]:
+                            print(
+                                f"    * c{mm['contour']} p{mm['point']}: "
+                                f"({mm['A']['x']},{mm['A']['y']},{mm['A']['on']}) -> "
+                                f"({mm['B']['x']},{mm['B']['y']},{mm['B']['on']}) "
+                                f"dx={mm['d']['dx']} dy={mm['d']['dy']}"
+                            )
+                else:
+                    print(f"  - point_compare: not comparable ({pv.get('reason')})")
+        else:
+            print("  - point_deltas: (suppressed; affine equivalent)")
 
     if changed == 0:
         print("(none)")
