@@ -1,9 +1,6 @@
 name: Build fonts
 
-on:
-  push:
-    paths:
-      - white-bunnybat.sfd
+on: [push]
 
 jobs:
   build_and_test:
