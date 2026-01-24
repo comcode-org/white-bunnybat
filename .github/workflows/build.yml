@@ -1,6 +1,9 @@
 name: Build fonts
 
-on: [push]
+on:
+  push:
+    paths:
+      - white-bunnybat.sfd
 
 jobs:
   build_and_test:
@@ -12,7 +15,7 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           push: never
-          runCmd: build.sh
+          runCmd: make
       - name: Upload font release artifacts
         uses: actions/upload-artifact@v4
         with:
