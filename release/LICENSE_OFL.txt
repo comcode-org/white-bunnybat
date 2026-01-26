@@ -5,7 +5,9 @@ LICENSE_MatthewWelch-MIT.txt, in addition to the OFL license here.
 
 ---
 
-Copyright (c) 2016, ComCODE (https://comcode.org/),
+Copyright (c) Matthew Welch
+Copyright (c) 2014-2022, Drizzly Bear LLC
+Copyright (c) 2023, ComCODE (https://comcode.org/),
 with Reserved Font Name "white-bunnybat".
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
