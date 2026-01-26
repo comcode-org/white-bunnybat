@@ -1,10 +1,3 @@
-IMPORTANT: white-bunnybat is derived from White Rabbit, which is NOT licensed
-under OFL; any distribution or derivative of white-bunnybat must include
-Matthew Welch's original copyright notice and MIT-style license, as in
-LICENSE_MatthewWelch-MIT.txt, in addition to the OFL license here.
-
----
-
 Copyright (c) Matthew Welch
 Copyright (c) 2014-2022, Drizzly Bear LLC
 Copyright (c) 2023, ComCODE (https://comcode.org/),
