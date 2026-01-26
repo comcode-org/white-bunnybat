@@ -1,0 +1,97 @@
+NOTICE
+
+This repository contains the font software “white-bunnybat”.
+
+Provenance and Licensing
+------------------------
+
+white-bunnybat is a derivative work based on the font “White Rabbit” by
+Matthew Welch.
+
+The original “White Rabbit” font is licensed under an MIT-style license.
+In accordance with that license, any distribution of white-bunnybat must
+retain Matthew Welch’s original copyright notice and MIT license text.
+That license text is included in this repository as:
+
+  LICENSE_MatthewWelch-MIT.txt
+
+
+Font License
+------------
+
+The white-bunnybat font software, including its font binaries and font
+source files, is licensed under the SIL Open Font License, Version 1.1.
+
+A copy of the SIL Open Font License is provided in:
+
+  LICENSE_OFL.txt
+
+The Reserved Font Name for this font is:
+
+  “white-bunnybat”
+
+The Reserved Font Name may only be used for fonts released by ComCODE 
+and its authorized maintainers.
+
+
+Copyright History
+-----------------
+
+The copyright in the original “White Rabbit” font is held by:
+
+  Copyright © Matthew Welch
+
+Substantial modifications, extensions, and derivative work on the font
+were made beginning in 2014 by:
+
+  Copyright © 2014–2022 Drizzly Bear LLC
+
+In 2023, the copyright and related intellectual property in those
+derivative contributions were donated and assigned to:
+
+  Copyright © 2023–present ComCODE
+  https://comcode.org/
+
+
+Contributions
+-------------
+
+Unless otherwise noted, all contributions to white-bunnybat are licensed under the SIL Open Font License,
+Version 1.1.
+
+Fine-grained authorship attribution for individual contributions is
+recorded in the project’s version control history.
+
+
+Contributor License Agreement
+------------------------------
+
+Contributions to this repository are subject to the project’s Contributor
+License Agreement (CLA).
+
+By submitting a contribution, contributors affirm that they have the right
+to contribute the material and agree to license their contributions in
+accordance with the CLA and the applicable project licenses.
+
+The CLA is provided separately and does not modify the terms of the SIL Open
+Font License or other applicable licenses governing the distributed files.
+
+
+Repository Licensing
+-------------------
+
+Files in this repository that are not part of the white-bunnybat font
+software (including scripts, documentation, configuration files, and other
+supporting materials) are licensed under the MIT License unless otherwise
+noted.
+
+A copy of the MIT License is provided in:
+
+  LICENSE
+
+
+Disclaimer
+----------
+
+This NOTICE file is provided for informational and attribution purposes
+only and does not modify or replace the terms of the applicable licenses.
