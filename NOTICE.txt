@@ -10,7 +10,8 @@ Matthew Welch.
 
 The original “White Rabbit” font is licensed under an MIT-style license.
 In accordance with that license, any distribution of white-bunnybat must
-retain Matthew Welch’s original copyright notice and MIT license text.
+retain Matthew Welch’s original copyright notice and MIT license text from
+https://squaregear.net/fonts/license.html
 That license text is included in this repository as:
 
   LICENSE_MatthewWelch-MIT.txt
