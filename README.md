@@ -16,7 +16,7 @@ We use [prettier](https://prettier.io/) for linting. If you get an error about t
 
 1. start a codespace on your branch, and then in the terminal in the codespace:
 2. run `npx prettier --write .` to fix the lint errors
-3. commit and push the changes in the termin
+3. commit and push the changes in the terminal
    ```bash
    git add -u
    git commit -m "Run npx prettier --write ."
