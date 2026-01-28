@@ -1,9 +1,9 @@
 SplineFontDB: 3.2
-FontName: WhiteRabbit
-FullName: White Rabbit Regular
-FamilyName: White Rabbit
+FontName: white-bunnybat
+FullName: white-bunnybat
+FamilyName: white-bunnybat
 Weight: Book
-Copyright: Copyright (c) 1999 by Matthew Welch. All Rights Reserved.
+Copyright: Copyright (c) 1999 by Matthew Welch, All Rights Reserved\nCopyright (c) 2014-2022, Drizzly Bear LLC\nCopyright (c) 2023, ComCODE (https://comcode.org/)
 Version: 1.00
 ItalicAngle: 0
 UnderlinePosition: 0
@@ -15,14 +15,14 @@ sfntRevision: 0x00000000
 LayerCount: 2
 Layer: 0 1 "Back" 1
 Layer: 1 1 "Fore" 0
-XUID: [1021 223 -401202833 2110300]
+XUID: [1021 223 -401202833 5203]
 StyleMap: 0x0040
 FSType: 4
 OS2Version: 1
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 0
 CreationTime: 924479787
-ModificationTime: 1757613003
+ModificationTime: 1769569302
 PfmFamily: 81
 TTFWeight: 400
 TTFWidth: 5
