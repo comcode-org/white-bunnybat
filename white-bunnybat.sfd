@@ -22,7 +22,7 @@ OS2Version: 1
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 0
 CreationTime: 924479787
-ModificationTime: 1769569302
+ModificationTime: 1769569685
 PfmFamily: 81
 TTFWeight: 400
 TTFWidth: 5
@@ -79,7 +79,7 @@ ShortTable: maxp 16
   0
   0
 EndShort
-LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch. All Rights Reserved." "" "Regular" "White Rabbit:Version 1.00" "" "Version 1.00" "" "White Rabbit+AJkA Trademark of Matthew Welch"
+LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch. All Rights Reserved.+AAoA-Copyright +AKkA 2014-2022, Drizzly Bear LLC+AAoA-Copyright +AKkA 2023, ComCODE (https://comcode.org/)" "" "Regular" "white-bunnybat:Version 1.00" "" "Version 1.00"
 GaspTable: 1 65535 15 1
 Encoding: UnicodeBmp
 UnicodeInterp: none
