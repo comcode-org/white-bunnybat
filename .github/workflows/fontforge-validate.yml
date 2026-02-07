@@ -7,9 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        # v5 (at the time of commit)
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       - name: Run build in dev container
-        uses: devcontainers/ci@v0.3
+        # v0.3 (at the time of commit)
+        uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
         with:
           # never push the devcontainer docker image to a registry ... for now
           push: never
