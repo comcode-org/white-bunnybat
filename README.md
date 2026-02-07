@@ -2,7 +2,9 @@
 
 This repo contains the [Hackmud](https://hackmud.com/) game font, white-bunnybat.
 
-## How to contribute (WIP)
+See [./NOTICE.txt](./NOTICE.txt) for licensing usage info.
+
+## How to contribute
 
 See the [CONTRIBUTING.md](https://github.com/comcode-org/white-bunnybat?tab=contributing-ov-file) doc for details about how to contribute. Some important notes:
 
@@ -16,8 +18,6 @@ We use [fontforge](https://fontforge.org/). The font project file is at [white-b
 You can do this directly using the fontforge GUI (just open the .sfd file, make changes, and save it), or e.g. using [fontforge's python scripting](https://fontforge.org/docs/scripting/python.html).
 
 To build the release font files, run [./build.sh](./build.sh).
-
-See [./NOTICE.txt](./NOTICE.txt) for licensing usage info.
 
 ## Prettier linting
 
