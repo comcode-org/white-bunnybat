@@ -79,7 +79,7 @@ ShortTable: maxp 16
   0
   0
 EndShort
-LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch. All Rights Reserved.+AAoA-Copyright +AKkA 2014-2022, Drizzly Bear LLC+AAoA-Copyright +AKkA 2023, ComCODE (https://comcode.org/)" "" "Regular" "white-bunnybat:Version 1.00" "" "Version 1.00"
+LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch.+AAoA-Copyright +AKkA 2014-2022, Drizzly Bear LLC+AAoA-Copyright +AKkA 2023, ComCODE (https://comcode.org/)" "" "Regular" "white-bunnybat:Version 1.00" "" "Version 1.00"
 GaspTable: 1 65535 15 1
 Encoding: UnicodeBmp
 UnicodeInterp: none
