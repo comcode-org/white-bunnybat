@@ -1,0 +1,16 @@
+name: Fontforge validation
+
+on: [pull_request]
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Run build in dev container
+        uses: devcontainers/ci@v0.3
+        with:
+          # never push the devcontainer docker image to a registry ... for now
+          push: never
+          runCmd: ./validate.py white-bunnybat.sfd
