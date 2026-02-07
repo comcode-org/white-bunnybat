@@ -1,0 +1,8 @@
+# protected files and paths need to be added to this section as they are created
+.devcontainer        @comcode-org/reviewers
+.github              @comcode-org/reviewers
+CODEOWNERS           @comcode-org/reviewers
+LICENSE*             @comcode-org/reviewers
+NOTICE.txt           @comcode-org/reviewers
+*.sh                 @comcode-org/reviewers
+*.py                 @comcode-org/reviewers
