@@ -10,6 +10,8 @@ You can do this directly using the fontforge GUI (just open the .sfd file, make 
 
 To build the release font files, run [./build.sh](./build.sh).
 
+See [./NOTICE.txt](./NOTICE.txt) for licensing usage info.
+
 ## Prettier linting
 
 We use [prettier](https://prettier.io/) for linting. If you get an error about this, you can:
