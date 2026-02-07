@@ -11,5 +11,6 @@ jobs:
       - name: Run build in dev container
         uses: devcontainers/ci@v0.3
         with:
+          # never push the devcontainer docker image to a registry ... for now
           push: never
           runCmd: ./validate.py white-bunnybat.sfd
