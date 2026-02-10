@@ -3,9 +3,8 @@ FontName: white-bunnybat
 FullName: white-bunnybat
 FamilyName: white-bunnybat
 Weight: Book
-Copyright: Copyright (c) 1999 by Matthew Welch\nCopyright (c) 2014-2022, Drizzly Bear LLC\nCopyright (c) 2023, ComCODE (https://comcode.org/)\nCopyright (c) 2026, Kaj van Ysincthorpe
-FontLog: "[2025-02-09 12:36 CET] (Kaj van Ysincthorpe) Added Glyphs:+AAoA  Char UniCode SFDName+AAoA  ------------------------+AAoA  +AMQA    U+-00C4  +ACIA-Adieresis+ACIACgAA  +AMUA    U+-00C5  +ACIA-Aring+ACIACgAA  +AMYA    U+-00C6  +ACIA-AE+ACIACgAA  +ANYA    U+-00D6  +ACIA-Odieresis+ACIACgAA  +ANgA    U+-00D8  +ACIA-Oslash+ACIACgAA  +ANwA    U+-00DC  +ACIA-Udieresis+ACIACgAA  +AN8A    U+-00DF  +ACIA-germandbls+ACIACgAA  +AOAA    U+-00E0  +ACIA-agrave+ACIACgAA  +AOQA    U+-00E4  +ACIA-adieresis+ACIACgAA  +AOUA    U+-00E5  +ACIA-aring+ACIACgAA  +AOYA    U+-00E6  +ACIA-ae+ACIACgAA  +AOkA    U+-00E9  +ACIA-eacute+ACIACgAA  +APYA    U+-00F6  +ACIA-odieresis+ACIACgAA  +APgA    U+-00F8  +ACIA-oslash+ACIACgAA  +APwA    U+-00FC  +ACIA-udieresis+ACIA"
-Version: 1.1
+Copyright: Copyright (c) 1999 by Matthew Welch,\nCopyright (c) 2014-2022, Drizzly Bear LLC\nCopyright (c) 2023, ComCODE (https://comcode.org/)
+Version: 1.0
 ItalicAngle: 0
 UnderlinePosition: 0
 UnderlineWidth: 0
@@ -80,7 +79,7 @@ ShortTable: maxp 16
   0
   0
 EndShort
-LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch - Copyright +AKkA 2014-2022, Drizzly Bear LLC - Copyright +AKkA 2023, ComCODE (https://comcode.org/) - Copyright +AKkA 2026, Kaj van Ysincthorpe" "" "Regular" "white-bunnybat:Version 1.1" "" "Version 1.1"
+LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch.+AAoA-Copyright +AKkA 2014-2022, Drizzly Bear LLC+AAoA-Copyright +AKkA 2023, ComCODE (https://comcode.org/)" "" "Regular" "white-bunnybat:Version 1.00" "" "Version 1.00"
 GaspTable: 1 65535 15 1
 Encoding: UnicodeBmp
 UnicodeInterp: none
