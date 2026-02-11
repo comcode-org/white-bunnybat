@@ -22,7 +22,6 @@ OS2Version: 1
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 0
 CreationTime: 924479787
-ModificationTime: 1770641152
 PfmFamily: 81
 TTFWeight: 400
 TTFWidth: 5
@@ -84,9 +83,6 @@ GaspTable: 1 65535 15 1
 Encoding: UnicodeBmp
 UnicodeInterp: none
 NameList: AGL For New Fonts
-DisplaySize: -48
-AntiAlias: 1
-FitToEm: 0
 BeginChars: 65539 211
 
 StartChar: .notdef
