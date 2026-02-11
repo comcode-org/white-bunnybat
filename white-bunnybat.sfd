@@ -83,6 +83,17 @@ GaspTable: 1 65535 15 1
 Encoding: UnicodeBmp
 UnicodeInterp: none
 NameList: AGL For New Fonts
+Grid
+-2048 975 m 0
+ 4096 975 l 1024
+  Named: "lowercase"
+-2048 -195 m 0
+ 4096 -195 l 1024
+  Named: "bottom_max"
+-2048 1365 m 0
+ 4096 1365 l 1024
+  Named: "top_max"
+EndSplineSet
 BeginChars: 65539 211
 
 StartChar: .notdef
