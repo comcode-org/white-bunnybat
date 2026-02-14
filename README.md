@@ -2,7 +2,7 @@
 
 This repo contains the [Hackmud](https://hackmud.com/) game font, white-bunnybat.
 
-See [./NOTICE.txt](./NOTICE.txt) for licensing usage info.
+See [NOTICE.txt](./NOTICE.txt) for licensing usage info.
 
 ## How to contribute
 
