@@ -17,13 +17,13 @@ We use [fontforge](https://fontforge.org/). The font project file is at [white-b
 
 You can do this directly using the fontforge GUI (just open the .sfd file, make changes, and save it), or e.g. using [fontforge's python scripting](https://fontforge.org/docs/scripting/python.html).
 
-To build the release font files, run [./build.sh](./build.sh).
+To build the release font files, run [build.sh](./build.sh).
 
 ## How to test your changes
 
 We don't know yet! :D
 
-One way to test your changes is by building a .ttf (with [./build.sh](./build.sh)) and then including it in a web page. Be warned, though, that in-game rendering is significantly different from default web rendering. In particular, your characters may look fine on the web, but may overlap in-game.
+One way to test your changes is by building a .ttf (with [build.sh](./build.sh)) and then including it in a web page. Be warned, though, that in-game rendering is significantly different from default web rendering. In particular, your characters may look fine on the web, but may overlap in-game.
 
 For now, you will need a ComCODE volunteer to test your changes in-game. This manual testing is expensive, so smaller, simpler diffs are much more likely to be accepted than large or complex ones.
 
