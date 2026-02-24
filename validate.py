@@ -35,7 +35,10 @@ Remove comments from the following glyphs:
             file=sys.stderr,
         )
         for glyph in glyphs_with_comments:
-            print(glyph.glyphname + " U+" + "{:04X}".format(glyph.unicode))
+            print(
+                glyph.glyphname + " U+" + "{:04X}".format(glyph.unicode),
+                file=sys.stderr,
+            )
         return 1
 
     # we're good!
