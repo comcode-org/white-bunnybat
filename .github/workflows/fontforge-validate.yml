@@ -31,6 +31,5 @@ jobs:
         # v0.3 (at the time of commit)
         uses: devcontainers/ci@8bf61b26e9c3a98f69cb6ce2f88d24ff59b785c6
         with:
-          # never push the devcontainer docker image to a registry ... for now
-          push: never
+          cacheFrom: ghcr.io/comcode-org/white-bunnybat-devcontainer
           runCmd: ./validate.py white-bunnybat.sfd
