@@ -81,7 +81,7 @@ ShortTable: maxp 16
 EndShort
 LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch.+AAoA-Copyright +AKkA 2014-2022, Drizzly Bear LLC+AAoA-Copyright +AKkA 2023, ComCODE (https://comcode.org/)" "" "Regular" "white-bunnybat:Version 1.00" "" "Version 1.00"
 GaspTable: 1 65535 15 1
-Encoding: UnicodeBmp
+Encoding: Custom
 UnicodeInterp: none
 NameList: AGL For New Fonts
 DisplaySize: -48
@@ -98,7 +98,7 @@ Grid
  4096 1365 l 1024
   Named: "top_max"
 EndSplineSet
-BeginChars: 65539 196
+BeginChars: 1114112 206
 
 StartChar: .notdef
 Encoding: 65536 -1 0
@@ -6656,6 +6656,156 @@ SplineSet
  975 0 l 1,2,-1
  0 0 l 1,3,-1
  0 975 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: upper_one_quarter_block
+Encoding: 129922 129922 196
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+0 1639 m 1,0,-1
+ 1200 1639 l 1,1,-1
+ 1200 1128 l 1,2,-1
+ 0 1128 l 1,3,-1
+ 0 1639 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: upper_three_eighths_block
+Encoding: 129923 129923 197
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+0 1639 m 1,0,-1
+ 1200 1639 l 1,1,-1
+ 1200 872 l 1,2,-1
+ 0 872 l 1,3,-1
+ 0 1639 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: upper_five_eighths_block
+Encoding: 129924 129924 198
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+0 1639 m 1,0,-1
+ 1200 1639 l 1,1,-1
+ 1200 360 l 1,2,-1
+ 0 360 l 1,3,-1
+ 0 1639 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: upper_three_quarters_block
+Encoding: 129925 129925 199
+Width: 1200
+Flags: WO
+LayerCount: 2
+Fore
+SplineSet
+0 1633 m 1,0,-1
+ 1200 1633 l 1,1,-1
+ 1200 98 l 1,2,-1
+ 0 98 l 1,3,-1
+ 0 1633 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: upper_seven_eighths_block
+Encoding: 129926 129926 200
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+0 1645 m 1,0,-1
+ 1200 1645 l 1,1,-1
+ 1200 -145 l 1,2,-1
+ 0 -145 l 1,3,-1
+ 0 1645 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: right_one_quarter_block
+Encoding: 129927 129927 201
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+900 1638 m 1,0,-1
+ 1200 1638 l 1,1,-1
+ 1200 -408 l 1,2,-1
+ 900 -408 l 1,3,-1
+ 900 1638 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: right_three_eighths_block
+Encoding: 129928 129928 202
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+750 1638 m 1,0,-1
+ 1200 1638 l 1,1,-1
+ 1200 -408 l 1,2,-1
+ 750 -408 l 1,3,-1
+ 750 1638 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: right_five_eighths_block
+Encoding: 129929 129929 203
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+450 1638 m 1,0,-1
+ 1200 1638 l 1,1,-1
+ 1200 -408 l 1,2,-1
+ 450 -408 l 1,3,-1
+ 450 1638 l 1,0,-1
+EndSplineSet
+EndChar
+
+StartChar: right_three_quarters_block
+Encoding: 129930 129930 204
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+300 1638 m 5,0,-1
+ 1200 1638 l 5,1,-1
+ 1200 -408 l 5,2,-1
+ 300 -408 l 5,3,-1
+ 300 1638 l 5,0,-1
+EndSplineSet
+EndChar
+
+StartChar: right_seven_eighths_block
+Encoding: 129931 129931 205
+Width: 1200
+Flags: W
+LayerCount: 2
+Fore
+SplineSet
+1200 1638 m 1,0,-1
+ 1200 -408 l 1,1,-1
+ 150 -408 l 1,2,-1
+ 150 1638 l 1,3,-1
+ 1200 1638 l 1,0,-1
 EndSplineSet
 EndChar
 EndChars
