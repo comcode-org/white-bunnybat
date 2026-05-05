@@ -81,7 +81,7 @@ ShortTable: maxp 16
 EndShort
 LangName: 1033 "Copyright +AKkA 1999 by Matthew Welch.+AAoA-Copyright +AKkA 2014-2022, Drizzly Bear LLC+AAoA-Copyright +AKkA 2023, ComCODE (https://comcode.org/)" "" "Regular" "white-bunnybat:Version 1.00" "" "Version 1.00"
 GaspTable: 1 65535 15 1
-Encoding: UnicodeBmp
+Encoding: Custom
 UnicodeInterp: none
 NameList: AGL For New Fonts
 DisplaySize: -48
@@ -98,7 +98,7 @@ Grid
  4096 1365 l 1024
   Named: "top_max"
 EndSplineSet
-BeginChars: 65539 196
+BeginChars: 1114112 206
 
 StartChar: .notdef
 Encoding: 65536 -1 0
